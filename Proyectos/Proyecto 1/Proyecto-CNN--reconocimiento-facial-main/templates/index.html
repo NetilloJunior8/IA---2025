@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>PROYECTO-CNN-IA · Reconocimiento facial</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Interfaz mejorada para streaming de reconocimiento facial en vivo con CNN e IA."
+    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <script defer src="{{ url_for('static', filename='app.js') }}"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <h1 class="site-title">proyecto-cnn-IA</h1>
+        <p class="site-subtitle">
+          Reconocimiento facial - PROYECTO 1 IA
+        </p>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">Cámara</h2>
+          <div id="status" class="status" aria-live="polite">Conectando…</div>
+        </div>
+
+        <div class="video-wrapper">
+          <img
+            id="video-stream"
+            class="video"
+            src="{{ url_for('video_feed') }}"
+            alt="Stream de la cámara con reconocimiento"
+          />
+        </div>
+        <div class="actions">
+          <button id="toggleStreamBtn" class="btn btn-primary" type="button">
+            Pausar camara
+          </button>
+          <button id="snapshotBtn" class="btn" type="button">
+            Tomar captura
+          </button>
+        </div>
+
+        <p class="helper-text">
+          Programa hecho por Kevin Rojas, Ernesto Estrada y Guillermo Padilla
+        </p>
+        <canvas id="snapshotCanvas" class="snapshot" aria-hidden="true"></canvas>
+      </section>
+    </main>
+    <footer class="site-footer">
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+flask
+opencv-python
+pillow
+transformers
+numpy
+gTTS
+easyocr
+language-tool-python
+edge-tts
+
