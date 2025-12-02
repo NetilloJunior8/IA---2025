@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> OCR a Voz | Sistema Integral</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f9; color: #333; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background-color: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); max-width: 600px; width: 90%; }
+        h1 { color: #0056b3; text-align: center; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; }
+        input[type="file"], select { border: 2px solid #ccc; padding: 10px; width: 100%; box-sizing: border-box; border-radius: 6px; }
+        button { background-color: #007bff; color: white; padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-size: 16px; transition: background-color 0.3s ease; }
+        button:hover { background-color: #0056b3; }
+        #loading { text-align: center; margin-top: 20px; display: none; color: #007bff; }
+        .results { margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px; }
+        .results h2 { color: #28a745; border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 15px; }
+        .results p, .results pre { background-color: #e9ecef; padding: 10px; border-radius: 4px; white-space: pre-wrap; word-wrap: break-word; }
+        audio { width: 100%; margin-top: 15px; }
+        .error { color: #dc3545; padding: 10px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; margin-top: 20px; display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1> OCR a Voz: Sistema de Conversión</h1>
+        <p>Sube una imagen con texto manuscrito para transcribirlo y generar audio en español.</p>
+        
+        <div class="form-group">
+            <input type="file" id="imageFile" accept="image/*">
+        </div>
+
+        
+        <div class="form-group">
+            <label for="voiceSelect"><strong>Voz para el audio:</strong></label>
+            <select id="voiceSelect">
+                
+                <option value="es-ES-AlvaroNeural">Alvaro (es-ES)</option>
+                <option value="es-ES-ElviraNeural">Elvira (es-ES)</option>
+                <option value="es-MX-DaliaNeural">Dalia (es-MX)</option>
+                <option value="es-MX-JorgeNeural">Jorge (es-MX)</option>
+            </select>
+        </div>
+        
+        <button onclick="processImage()">Convertir a Voz</button>
+        
+        <div id="loading">
+            Cargando y procesando... Esto puede tardar varios segundos debido a los modelos de IA. 
+        </div>
+
+        <div id="errorMessage" class="error"></div>
+        
+        <div id="results" class="results" style="display: none;">
+            <h2> Resultados del Procesamiento</h2>
+            
+            <p><strong>Texto Transcrito (Crudo):</strong></p>
+            <pre id="transcribedText"></pre>
+            
+            <p><strong>Texto Final (Corregido y Limpio):</strong></p>
+            <pre id="correctedText"></pre>
+
+            <h3> Audio Generado:</h3>
+            <audio controls id="audioOutput"></audio>
+        </div>
+    </div>
+
+    <script>
+        async function processImage() {
+            const fileInput = document.getElementById('imageFile');
+            const file = fileInput.files[0];
+            const loadingDiv = document.getElementById('loading');
+            const resultsDiv = document.getElementById('results');
+            const errorDiv = document.getElementById('errorMessage');
+            const voiceSelect = document.getElementById('voiceSelect');
+
+            // Limpiar resultados anteriores
+            resultsDiv.style.display = 'none';
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+
+            if (!file) {
+                errorDiv.textContent = 'Por favor, selecciona una imagen con texto manuscrito.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            loadingDiv.style.display = 'block';
+
+            const formData = new FormData();
+            formData.append('imagen', file);
+            // NUEVO: enviar voz seleccionada
+            formData.append('voice', voiceSelect.value);
+
+            try {
+                const response = await fetch('/convertir', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('transcribedText').textContent = data.texto_transcrito;
+                    document.getElementById('correctedText').textContent = data.texto_corregido;
+                    document.getElementById('audioOutput').src = data.audio_url;
+                    
+                    resultsDiv.style.display = 'block';
+                } else {
+                    errorDiv.textContent = 'Error en el procesamiento: ' + (data.error || 'Mensaje de error desconocido.');
+                    errorDiv.style.display = 'block';
+                }
+
+            } catch (error) {
+                console.error('Fetch error:', error);
+                errorDiv.textContent = 'Error de conexión o servidor. Revisa la consola para más detalles.';
+                errorDiv.style.display = 'block';
+            } finally {
+                loadingDiv.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
